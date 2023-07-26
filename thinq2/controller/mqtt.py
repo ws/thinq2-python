@@ -13,8 +13,7 @@ from thinq2.client.common import CommonClient
 from thinq2.util import memoize
 from thinq2.util.filesystem import TempDir
 
-from thinq2 import AWS_IOTT_CA_CERT_URL, AWS_IOTT_ALPN_PROTOCOL
-
+from thinq2 import AWS_IOTT_CA_CERT_PATH, AWS_IOTT_ALPN_PROTOCOL
 
 @controller(MQTTConfiguration)
 class ThinQMQTT:
@@ -75,7 +74,7 @@ class ThinQMQTT:
     @property
     def ssl_context(self):
         temp_dir = TempDir()
-        ca_cert_path = temp_dir.file(self.ca_cert)
+        ca_cert_path = AWS_IOTT_CA_CERT_PATH
         private_key_path = temp_dir.file(self.private_key)
         client_cert_path = temp_dir.file(self.registration.certificate_pem)
 
@@ -85,10 +84,6 @@ class ThinQMQTT:
         context.load_cert_chain(certfile=client_cert_path, keyfile=private_key_path)
 
         return context
-
-    @initializer
-    def ca_cert(self):
-        return requests.get(AWS_IOTT_CA_CERT_URL).text
 
     @initializer
     def private_key(self):
